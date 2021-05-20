@@ -1,4 +1,6 @@
 import secrets
+ac = []
+number_buildings, apart_type1, apart_type2 = 0, 0, 0
 class Developer:
     corporation_name = "Kiev Buildings"
     apartments_type1 = []
@@ -130,6 +132,27 @@ class Worker:
     def get_pass(self, password):
         self.id_pass = password
 
+class Inhabitant:
+    def __init__(self, first_name, second_name):
+        self.first_name = first_name
+        self.second_name = second_name
+        self.address = ""
+        self.id_pass = 0
+
+    def get_pass(self, password):
+        self.id_pass = password
+
+    def call_stuff(self):
+        print("New inhabitant arrived, stuff required at the registration room!")
+
+    def buy_apartment(self, n, type1, type2, rooms):
+        if rooms == 1:
+            ac.apart_buildings[n-1].apart_type1[type1-1].change_state_b(type1)
+            print("Bought flat number", type1)
+        if rooms == 2:
+            ac.apart_buildings[n-1].apart_type1[type2-1].change_state_b(type2)
+            print("Bought flat number", type2)
+
 class Security_System:
     system_type= "wireless"
     notification_type ="siren&sms"
@@ -147,11 +170,16 @@ class TelecommunicationSystem:
     isp = "Triolan"
     database_name = "MariaDB"
     workers_db = []
+    inhabitants_db = []
     def add_worker_info(self, worker):
         self.workers_db.append(Worker(worker.first_name, worker.second_name, worker.speciality))
 
+    def add_inhabitants_info(self, inhabitants):
+        self.inhabitants_db.append(Inhabitant(inhabitants.first_name, inhabitants.second_name))
+
 class ApartmentManagment:
     workers = []
+    inhabitants = []
     sec_system = Security_System()
     tel_system = TelecommunicationSystem()
     def employ_worker(self, worker):
@@ -159,9 +187,17 @@ class ApartmentManagment:
         self.workers[len(self.workers)-1].job_apply()
         self.tel_system.add_worker_info(worker)
 
+    def add_inhabitants(self, inhabitants):
+        self.inhabitants.append(Inhabitant(inhabitants.first_name, inhabitants.second_name))
+        self.tel_system.add_inhabitants_info(inhabitants)
+
     def list_workers(self):
         for i in range (len(self.workers)):
             print("Data about worker #", i+1, self.workers[i].first_name, self.workers[i].second_name, self.workers[i].speciality)
+
+    def list_inhabitants(self):
+        for i in range (len(self.inhabitants)):
+            print("Data about inhabitant #", i+1, self.inhabitants[i].first_name, self.inhabitants[i].second_name)
 
     def dismiss_worker(self, first_name, second_name, speciality):
         for i in range (len(workers)-1):
@@ -176,10 +212,22 @@ class ApartmentManagment:
         print(password)
         self.workers[i].get_pass(password)
 
+    def provide_inhab_pass(self):
+        print("Enter inhabitant's id to give him password:")
+        i = int(input()) - 1
+        password = secrets.token_hex(6)
+        print(password)
+        self.inhabitants[i].get_pass(password)
+
     def take_pass(self):
         print("Enter worker's id to take his password:")
         i = int(input())
         print(self.workers[i].first_name, self.workers[i].second_name, "`s password is:", self.workers[i].id_pass)
+
+    def take_inhab_pass(self):
+        print("Enter inhabitant's id to take his password:")
+        i = int(input()) - 1
+        print(self.inhabitants[i].first_name, self.inhabitants[i].second_name, "`s password is:", self.inhabitants[i].id_pass)
 
     def install_alarm(self):
         print("Security system alarm installed")
@@ -191,6 +239,10 @@ class ApartmentManagment:
     def turn_off_alarm(self):
         print("!!! You can now go back into the building !!!")
         self.sec_system.change_system_state_normal()
+
+    def stuff_call(self):
+        self.inhabitants[0].call_stuff()
+        print("Stuff is ready to work with new inhabitan")
 
 class PowerSupplySystem:
     cable_type = "hidden"
@@ -312,8 +364,11 @@ print("     Entering DEVELOPER mode . . .")
 print("Enter data for your building, 0 for default, 1 for manual")
 choice = int(input())
 if choice == 0:
-    developer = Developer(2, 10, 10)
-    ac = ApartmentComplex(2)
+    number_buildings = 2
+    apart_type1 = 10
+    apart_type2 = 10
+    developer = Developer(number_buildings, apart_type1, apart_type2)
+    ac = ApartmentComplex(number_buildings)
     a_1 = [Apartment(1, 33, 3, 6, 22, i+1) for i in range(10)]
     a_2 = [Apartment(2, 55, 3, 6.5, 23, i+1) for i in range(10)]
     building_info = [1, 24, 3.2, 1.7, 2000, 20]
@@ -357,6 +412,7 @@ if choice == 1:
 
 print("     Entering APARTMENT MANAGEMENT mode . . .")
 am = ApartmentManagment()
+
 manag_menu = 0
 print("""Here is the menu:
       Press 0 to leave menu
@@ -372,13 +428,12 @@ print("""Here is the menu:
       (take notice that it`s not possible to dismiss workers until you employ them!)"""
       )
 while True:
-    workers = []
+    workers = add_workers()
     manag_menu = int(input("Enter desirable option:"))
     if manag_menu == 1:
         workers = add_workers()
     elif manag_menu == 2:
         for i in range(len(workers)):
-            print(workers[i])
             am.employ_worker(workers[i])
     elif manag_menu == 3:
         am.install_alarm()
@@ -404,3 +459,52 @@ while True:
         break
 
 print("     Entering INHABITANT mode . . .")
+print("""Here is the menu:
+      Press 0 to leave menu
+      Press 1 to add inhabitant
+      Press 2 to give inhabitant a password
+      Press 3 to take inhabitant`s password
+      Press 4 to list inhabitants
+      Press 5 to buy an apartment
+      Press 6 to sell an apartment
+      Press 7 to call stuff
+      """)
+inhab_menu = 0
+while True:
+    inhab_menu = int(input("Enter desirable option:"))
+    if inhab_menu == 1:
+        print("Enter new inhabitant`s data:")
+        print("Enter first name:")
+        f_name = input()
+        print("Enter second name:")
+        s_name = input()
+        inhabitant = Inhabitant(f_name, s_name)
+        am.add_inhabitants(inhabitant)
+    elif inhab_menu == 2:
+        am.provide_inhab_pass()
+    elif inhab_menu == 3:
+        am.take_inhab_pass()
+    elif inhab_menu == 4:
+        am.list_inhabitants()
+    elif inhab_menu == 5:
+        print("Enter inhabitant's id to buy an apartment:")
+        i = int(input()) - 1
+        print("Enter building`s number, available are from 1 to", number_buildings)
+        n = int(input())
+        print("How many rooms? 1 or 2?")
+        rooms = int(input())
+        if rooms == 1:
+            print("Enter flat`s, available are from 1 to", apart_type1)
+            apart_type1 = int(input())
+            apart_type2 = 0
+        if rooms == 2:
+            print("Enter flat`s, available are from 1 to", apart_type2)
+            apart_type2 = int(input())
+            apart_type1 = 0
+        am.inhabitants[i].buy_apartment(number_buildings, apart_type1, apart_type2, rooms)
+    elif inhab_menu == 6:
+        am.list_inhabitants()
+    elif inhab_menu == 7:
+        am.stuff_call()
+    elif manag_menu == 0:
+        break
