@@ -147,11 +147,25 @@ class Inhabitant:
 
     def buy_apartment(self, n, type1, type2, rooms):
         if rooms == 1:
-            ac.apart_buildings[n-1].apart_type1[type1-1].change_state_b(type1)
-            print("Bought flat number", type1)
+            if ac.apart_buildings[n - 1].apart_type1[type1 - 1].state == "free" and self.address == "":
+                ac.apart_buildings[n-1].apart_type1[type1-1].change_state_b(type1)
+                self.address = str(n) + "," + str(rooms) + "," + str(type1) + "."
+                print("Bought flat number", type1)
+            else:
+                print("Flat already bought! OR you already own a flat")
         if rooms == 2:
-            ac.apart_buildings[n-1].apart_type1[type2-1].change_state_b(type2)
-            print("Bought flat number", type2)
+            if ac.apart_buildings[n - 1].apart_type2[type2 - 1].state == "free" and self.address == "":
+                ac.apart_buildings[n-1].apart_type2[type2-1].change_state_b(type2)
+                self.address = str(n) + "," + str(rooms) + "," + str(type2) + "."
+                print("Bought flat number", type2)
+            else:
+                print("Flat already bought! OR you already own a flat")
+
+    def sell_apartment(self, n, type1, type2, rooms):
+        if rooms == 1:
+            ac.apart_buildings[n - 1].apart_type1[type1 - 1].change_state_f(type1)
+        if rooms == 2:
+            ac.apart_buildings[n - 1].apart_type2[type2 - 1].change_state_f(type2)
 
 class Security_System:
     system_type= "wireless"
@@ -243,6 +257,11 @@ class ApartmentManagment:
     def stuff_call(self):
         self.inhabitants[0].call_stuff()
         print("Stuff is ready to work with new inhabitan")
+
+    def return_address(self):
+        print("Enter inhabitant's id to see his\her address:")
+        i = int(input()) - 1
+        print("Inhabitant`s address is:", self.inhabitants[i].address)
 
 class PowerSupplySystem:
     cable_type = "hidden"
@@ -468,6 +487,7 @@ print("""Here is the menu:
       Press 5 to buy an apartment
       Press 6 to sell an apartment
       Press 7 to call stuff
+      Press 8 to see inhabitant`s address
       """)
 inhab_menu = 0
 while True:
@@ -495,16 +515,33 @@ while True:
         rooms = int(input())
         if rooms == 1:
             print("Enter flat`s, available are from 1 to", apart_type1)
-            apart_type1 = int(input())
-            apart_type2 = 0
+            apart_type_1 = int(input())
+            apart_type_2 = 0
+            am.inhabitants[i].buy_apartment(n, apart_type_1, apart_type_2, rooms)
         if rooms == 2:
             print("Enter flat`s, available are from 1 to", apart_type2)
-            apart_type2 = int(input())
-            apart_type1 = 0
-        am.inhabitants[i].buy_apartment(number_buildings, apart_type1, apart_type2, rooms)
+            apart_type_2 = int(input())
+            apart_type_1 = 0
+            am.inhabitants[i].buy_apartment(n, apart_type_1, apart_type_2, rooms)
     elif inhab_menu == 6:
-        am.list_inhabitants()
+        print("Enter inhabitant's id to sell an apartment:")
+        i = int(input()) - 1
+        print(am.inhabitants[i].address)
+        building_n = int(am.inhabitants[i].address[0])
+        rooms = int(am.inhabitants[i].address[4])
+        print(building_n, rooms)
+        flat_number = str(am.inhabitants[i].address[4:5])
+        flat_number.replace(" ", "")
+        flat_number = int(flat_number)
+        am.inhabitants[i].address = ""
+        if rooms == 1:
+            am.inhabitants[i].sell_apartment(building_n, flat_number, 0, rooms)
+        if rooms == 2:
+            am.inhabitants[i].sell_apartment(building_n, 0, flat_number, rooms)
+
     elif inhab_menu == 7:
         am.stuff_call()
+    elif inhab_menu == 8:
+        am.return_address()
     elif manag_menu == 0:
         break
