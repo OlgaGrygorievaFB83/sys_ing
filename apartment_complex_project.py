@@ -1,4 +1,5 @@
 import secrets
+import re
 ac = []
 number_buildings, apart_type1, apart_type2 = 0, 0, 0
 class Developer:
@@ -52,48 +53,64 @@ class Developer:
               ", sewerage:", self.sewerage, ", heat:", self.heat_supply, ", power:", self.power_supply)
 
     def apart_info_input(self):
-        print("Hi, Developer, enter apartment's parameters:")
-        print("How many rooms for type1?")
-        rooms1 = input()
-        print("What`s the total area?")
-        area1 = input()
-        print("What`s the height?")
-        height1 = input()
-        print("What`s the lighting area?")
-        lighting1 = input()
-        print("What`s the temperature?")
-        temperature1 = input()
-        self.apartments_type1 = [Apartment(rooms1, area1, height1, lighting1, temperature1, i+1) for i in range(int(self.type1))]
-        print("How many rooms for type2?")
-        rooms2 = input()
-        print("What`s the total area?")
-        area2 = input()
-        print("What`s the height?")
-        height2 = input()
-        print("What`s the lighting area?")
-        lighting2 = input()
-        print("What`s the temperature?")
-        temperature2 = input()
-        self.apartments_type2 = [Apartment(rooms2, area2, height2, lighting2, temperature2, i+1) for i in range(int(self.type2))]
+        while True:
+            print("Hi, Developer, enter apartment's parameters:")
+            print("How many rooms for type1?")
+            rooms1 = input()
+            print("What`s the total area?")
+            area1 = input()
+            print("What`s the height?")
+            height1 = input()
+            print("What`s the lighting area?")
+            lighting1 = input()
+            print("What`s the temperature?")
+            temperature1 = input()
+            if rooms1.isdigit() and area1.isdigit() and re.match("^\d+?\.\d+?$", height1) and re.match("^\d+?\.\d+?$", lighting1) and temperature1.isdigit():
+                self.apartments_type1 = [Apartment(rooms1, area1, height1, lighting1, temperature1, i+1) for i in range(int(self.type1))]
+            else:
+                print("Invalid data format in aparts 1 specifications!")
+                continue
+            print("How many rooms for type2?")
+            rooms2 = input()
+            print("What`s the total area?")
+            area2 = input()
+            print("What`s the height?")
+            height2 = input()
+            print("What`s the lighting area?")
+            lighting2 = input()
+            print("What`s the temperature?")
+            temperature2 = input()
+            if rooms2.isdigit() and area2.isdigit() and re.match("^\d+?\.\d+?$", height2) and re.match("^\d+?\.\d+?$", lighting2) and temperature2.isdigit():
+                self.apartments_type2 = [Apartment(rooms2, area2, height2, lighting2, temperature2, i+1) for i in range(int(self.type2))]
+            else:
+                print("Invalid data format in aparts 2 specifications!")
+                continue
+            break
 
     def give_aparts_info(self):
         return self.apartments_type1, self.apartments_type2
 
     def building_info_input(self):
-        print("Hi, Developer, enter apartment building`s parameters:")
-        print("What`s the fire resistance level?")
-        fire_res_level = int(input())
-        print("How many floors?")
-        floors = int(input())
-        print("What`s the floor`s height?")
-        floor_height = float(input())
-        print("What`s the corridor width?")
-        corridor_width = float(input())
-        print("What`s the floor`s area?")
-        floor_area = int(input())
-        print("What`s the temperature?")
-        temperature = int(input())
-        self.building_info = [fire_res_level, floors, floor_height, corridor_width, floor_area, temperature]
+        while True:
+            print("Hi, Developer, enter apartment building`s parameters:")
+            print("What`s the fire resistance level?")
+            fire_res_level = input()
+            print("How many floors?")
+            floors = input()
+            print("What`s the floor`s height?")
+            floor_height = input()
+            print("What`s the corridor width?")
+            corridor_width = input()
+            print("What`s the floor`s area?")
+            floor_area = input()
+            print("What`s the temperature?")
+            temperature = input()
+            if fire_res_level.isdigit() and floors.isdigit() and re.match("^\d+?\.\d+?$", floor_height) and re.match("^\d+?\.\d+?$", corridor_width) and floor_area.isdigit() and temperature.isdigit():
+                self.building_info = [int(fire_res_level), int(floors), float(floor_height), float(corridor_width), int(floor_area), int(temperature)]
+                break
+            else:
+                print("Invalid input data!")
+                continue
 
     def give_building_info(self):
         return self.building_info
@@ -175,7 +192,7 @@ class Security_System:
         return self.system_state
 
     def change_system_state_normal(self):
-        self.system_state = "on"
+        self.system_state = "normal"
 
     def change_system_state_emergency(self):
         self.system_state = "emergency"
@@ -218,30 +235,66 @@ class ApartmentManagment:
             if self.workers[i].first_name == first_name and self.workers[i].second_name == second_name:
                 del self.workers[i]
                 print("Worker", first_name, second_name, "dismissed")
+            else:
+                print("No worker with these parameters!")
 
     def provide_pass(self):
         print("Enter worker's id to give him password:")
-        i = int(input())
-        password = secrets.token_hex(6)
-        print(password)
-        self.workers[i].get_pass(password)
+        i = input()
+        if not i.isdigit():
+            print("Invalid input!")
+            return
+        i = int(i)
+        if i <= len(self.workers):
+            password = secrets.token_hex(6)
+            print(password)
+            self.workers[i].get_pass(password)
+        else:
+            print("Worker with this id doesn't exist!")
 
     def provide_inhab_pass(self):
         print("Enter inhabitant's id to give him password:")
-        i = int(input()) - 1
-        password = secrets.token_hex(6)
-        print(password)
-        self.inhabitants[i].get_pass(password)
+        i = input()
+        if len(am.inhabitants) == 0:
+            print("no inhabitants yet!")
+            return
+        if not i.isdigit():
+            print("Invalid input!")
+            return
+        i = int(i) - 1
+        if i <= len(self.inhabitants):
+            password = secrets.token_hex(6)
+            print(password)
+            self.inhabitants[i].get_pass(password)
+        else:
+            print("Inhabitant with this id doesn't exist!")
 
     def take_pass(self):
         print("Enter worker's id to take his password:")
+        i = input()
+        if not i.isdigit():
+            print("Invalid input!")
+            return
         i = int(input())
-        print(self.workers[i].first_name, self.workers[i].second_name, "`s password is:", self.workers[i].id_pass)
+        if i <= len(self.workers):
+            print(self.workers[i].first_name, self.workers[i].second_name, "`s password is:", self.workers[i].id_pass)
+        else:
+            print("Worker with this id doesn't exist!")
 
     def take_inhab_pass(self):
         print("Enter inhabitant's id to take his password:")
-        i = int(input()) - 1
-        print(self.inhabitants[i].first_name, self.inhabitants[i].second_name, "`s password is:", self.inhabitants[i].id_pass)
+        i = input()
+        if len(am.inhabitants) == 0:
+            print("no inhabitants yet!")
+            return
+        if not i.isdigit():
+            print("Invalid input!")
+            return
+        i = int(i) - 1
+        if i <= len(self.inhabitants):
+            print(self.inhabitants[i].first_name, self.inhabitants[i].second_name, "`s password is:", self.inhabitants[i].id_pass)
+        else:
+            print("Inhabitant with this id doesn't exist!")
 
     def install_alarm(self):
         print("Security system alarm installed")
@@ -260,8 +313,18 @@ class ApartmentManagment:
 
     def return_address(self):
         print("Enter inhabitant's id to see his\her address:")
-        i = int(input()) - 1
-        print("Inhabitant`s address is:", self.inhabitants[i].address)
+        i = input()
+        if len(am.inhabitants) == 0:
+            print("no inhabitants yet!")
+            return
+        if not i.isdigit():
+            print("Invalid input!")
+            return
+        i = int(i) - 1
+        if i <= len(self.inhabitants):
+            print("Inhabitant`s address is:", self.inhabitants[i].address)
+        else:
+            print("Inhabitant with this id doesn't exist!")
 
 class PowerSupplySystem:
     cable_type = "hidden"
@@ -377,57 +440,82 @@ def add_workers():
     worker6 = Worker("Kaz", "Water", "cleaner")
     worker7 = Worker("Nina", "Spy", "cleaner")
     worker8 = Worker("Alina", "Light", "dispatcher")
-    return worker1, worker2, worker3, worker4, worker5, worker6, worker7, worker8
+    workers = [worker1, worker2, worker3, worker4, worker5, worker6, worker7, worker8]
+    return workers
+
+def add_worker(ws):
+    print("Adding new worker to the list...")
+    print("Enter first name:")
+    f_name = input()
+    print("Enter second name:")
+    s_name = input()
+    print("Enter specialuty:")
+    spec = input()
+    w = Worker(f_name, s_name, spec)
+    ws = ws.append(w)
 
 print("     Entering DEVELOPER mode . . .")
-print("Enter data for your building, 0 for default, 1 for manual")
-choice = int(input())
-if choice == 0:
-    number_buildings = 2
-    apart_type1 = 10
-    apart_type2 = 10
-    developer = Developer(number_buildings, apart_type1, apart_type2)
-    ac = ApartmentComplex(number_buildings)
-    a_1 = [Apartment(1, 33, 3, 6, 22, i+1) for i in range(10)]
-    a_2 = [Apartment(2, 55, 3, 6.5, 23, i+1) for i in range(10)]
-    building_info = [1, 24, 3.2, 1.7, 2000, 20]
-    ac.change_state_ex(developer.type1, developer.type2, a_1, a_2, building_info)
-    for i in range(2):
-        ac.apart_buildings[i] = ApartmentBuilding(10, 10, a_1, a_2, building_info)
-        ac.set_building_state(i)
-        print("Building`s #", i+1, "state is:", ac.apart_buildings[i].state)
+while True:
+    print("Enter data for your building, 0 for default, 1 for manual")
+    choice = input()
+    if choice.isdigit() and (int(choice) == 0 or int(choice) == 1):
+        choice = int(choice)
+        if choice == 0:
+            number_buildings = 2
+            apart_type1 = 10
+            apart_type2 = 10
+            developer = Developer(number_buildings, apart_type1, apart_type2)
+            ac = ApartmentComplex(number_buildings)
+            a_1 = [Apartment(1, 33, 3, 6, 22, i+1) for i in range(10)]
+            a_2 = [Apartment(2, 55, 3, 6.5, 23, i+1) for i in range(10)]
+            building_info = [1, 24, 3.2, 1.7, 2000, 20]
+            ac.change_state_ex(developer.type1, developer.type2, a_1, a_2, building_info)
+            for i in range(2):
+                ac.apart_buildings[i] = ApartmentBuilding(10, 10, a_1, a_2, building_info)
+                ac.set_building_state(i)
+                print("Building`s #", i+1, "state is:", ac.apart_buildings[i].state)
 
-    print("Buildings successfully put into operation! Now starting systems . . .")
-    developer.put_into_operation()
-    ac.connect_electricity()
+            print("Buildings successfully put into operation! Now starting systems . . .")
+            developer.put_into_operation()
+            ac.connect_electricity()
 
-if choice == 1:
-    print("Hi, Developer, how many buildings?")
-    number_buildings = input()
-    print("How many one-room apartment?")
-    apart_type1 = input()
-    print("How many two-room apartment?")
-    apart_type2 = input()
-    developer = Developer(number_buildings, apart_type1, apart_type2)
+        if choice == 1:
+            while True:
+                print("Hi, Developer, how many buildings?")
+                number_buildings = input()
+                print("How many one-room apartment?")
+                apart_type1 = input()
+                print("How many two-room apartment?")
+                apart_type2 = input()
+                if number_buildings.isdigit() and apart_type1.isdigit() and apart_type2.isdigit():
+                    developer = Developer(number_buildings, apart_type1, apart_type2)
+                else:
+                    print("Invalid data input")
+                    continue
 
-    ac = ApartmentComplex(number_buildings)
+                ac = ApartmentComplex(number_buildings)
 
-    developer.apart_info_input()
-    developer.building_info_input()
-    while not ac.check_requirements(developer):
-        developer.apart_info_input()
-        developer.building_info_input()
+                developer.apart_info_input()
+                developer.building_info_input()
+                while not ac.check_requirements(developer):
+                    developer.apart_info_input()
+                    developer.building_info_input()
 
-    a_1, a_2 = developer.give_aparts_info()
-    building_info = developer.give_building_info()
-    ac.change_state_ex(developer.type1, developer.type2, a_1, a_2, building_info)
-    for i in range(int(number_buildings)):
-        ac.apart_buildings[i] = ApartmentBuilding(apart_type1, apart_type2, a_1, a_2, building_info)
-        ac.set_building_state(i)
-        print("Building`s #", i + 1, "state is:", ac.apart_buildings[i].state)
-    print("Buildings successfully put into operation! Now starting systems . . .")
-    developer.put_into_operation()
-    ac.connect_electricity()
+                a_1, a_2 = developer.give_aparts_info()
+                building_info = developer.give_building_info()
+                ac.change_state_ex(developer.type1, developer.type2, a_1, a_2, building_info)
+                for i in range(int(number_buildings)):
+                    ac.apart_buildings[i] = ApartmentBuilding(apart_type1, apart_type2, a_1, a_2, building_info)
+                    ac.set_building_state(i)
+                    print("Building`s #", i + 1, "state is:", ac.apart_buildings[i].state)
+                print("Buildings successfully put into operation! Now starting systems . . .")
+                developer.put_into_operation()
+                ac.connect_electricity()
+                break
+    else:
+        print("Invalid data input!")
+        continue
+    break
 
 print("     Entering APARTMENT MANAGEMENT mode . . .")
 am = ApartmentManagment()
@@ -446,36 +534,45 @@ print("""Here is the menu:
       Press 9 to take worker`s password
       (take notice that it`s not possible to dismiss workers until you employ them!)"""
       )
+workers = add_workers()
+for i in range(len(workers)):
+    am.employ_worker(workers[i])
 while True:
-    workers = add_workers()
-    manag_menu = int(input("Enter desirable option:"))
-    if manag_menu == 1:
-        workers = add_workers()
-    elif manag_menu == 2:
-        for i in range(len(workers)):
-            am.employ_worker(workers[i])
-    elif manag_menu == 3:
-        am.install_alarm()
-    elif manag_menu == 4:
-        am.turn_on_alarm()
-    elif manag_menu == 5:
-        am.turn_off_alarm()
-    elif manag_menu == 6:
-        am.list_workers()
-    elif manag_menu == 7:
-        print("Enter first name:")
-        f_n = input()
-        print("Enter second name:")
-        s_n = input()
-        print("Enter speciality:")
-        sp = input()
-        am.dismiss_worker(f_n, s_n, sp)
-    elif manag_menu == 8:
-        am.provide_pass()
-    elif manag_menu == 9:
-        am.take_pass()
-    elif manag_menu == 0:
-        break
+    manag_menu = input("Enter desirable option:")
+    if manag_menu.isdigit():
+        if int(manag_menu) not in range (0, 10):
+            print("Invalid menu option!")
+            continue
+        manag_menu = int(manag_menu)
+        if manag_menu == 1:
+            add_worker(workers)
+        elif manag_menu == 2:
+            am.employ_worker(workers[len(workers)-1])
+        elif manag_menu == 3:
+            am.install_alarm()
+        elif manag_menu == 4:
+            am.turn_on_alarm()
+        elif manag_menu == 5:
+            am.turn_off_alarm()
+        elif manag_menu == 6:
+            am.list_workers()
+        elif manag_menu == 7:
+            print("Enter first name:")
+            f_n = input()
+            print("Enter second name:")
+            s_n = input()
+            print("Enter speciality:")
+            sp = input()
+            am.dismiss_worker(f_n, s_n, sp)
+        elif manag_menu == 8:
+            am.provide_pass()
+        elif manag_menu == 9:
+            am.take_pass()
+        elif manag_menu == 0:
+            break
+    else:
+        print("Invalid menu option!")
+        continue
 
 print("     Entering INHABITANT mode . . .")
 print("""Here is the menu:
@@ -491,57 +588,104 @@ print("""Here is the menu:
       """)
 inhab_menu = 0
 while True:
-    inhab_menu = int(input("Enter desirable option:"))
-    if inhab_menu == 1:
-        print("Enter new inhabitant`s data:")
-        print("Enter first name:")
-        f_name = input()
-        print("Enter second name:")
-        s_name = input()
-        inhabitant = Inhabitant(f_name, s_name)
-        am.add_inhabitants(inhabitant)
-    elif inhab_menu == 2:
-        am.provide_inhab_pass()
-    elif inhab_menu == 3:
-        am.take_inhab_pass()
-    elif inhab_menu == 4:
-        am.list_inhabitants()
-    elif inhab_menu == 5:
-        print("Enter inhabitant's id to buy an apartment:")
-        i = int(input()) - 1
-        print("Enter building`s number, available are from 1 to", number_buildings)
-        n = int(input())
-        print("How many rooms? 1 or 2?")
-        rooms = int(input())
-        if rooms == 1:
-            print("Enter flat`s, available are from 1 to", apart_type1)
-            apart_type_1 = int(input())
-            apart_type_2 = 0
-            am.inhabitants[i].buy_apartment(n, apart_type_1, apart_type_2, rooms)
-        if rooms == 2:
-            print("Enter flat`s, available are from 1 to", apart_type2)
-            apart_type_2 = int(input())
-            apart_type_1 = 0
-            am.inhabitants[i].buy_apartment(n, apart_type_1, apart_type_2, rooms)
-    elif inhab_menu == 6:
-        print("Enter inhabitant's id to sell an apartment:")
-        i = int(input()) - 1
-        print(am.inhabitants[i].address)
-        building_n = int(am.inhabitants[i].address[0])
-        rooms = int(am.inhabitants[i].address[4])
-        print(building_n, rooms)
-        flat_number = str(am.inhabitants[i].address[4:5])
-        flat_number.replace(" ", "")
-        flat_number = int(flat_number)
-        am.inhabitants[i].address = ""
-        if rooms == 1:
-            am.inhabitants[i].sell_apartment(building_n, flat_number, 0, rooms)
-        if rooms == 2:
-            am.inhabitants[i].sell_apartment(building_n, 0, flat_number, rooms)
-
-    elif inhab_menu == 7:
-        am.stuff_call()
-    elif inhab_menu == 8:
-        am.return_address()
-    elif manag_menu == 0:
-        break
+    inhab_menu = input("Enter desirable option:")
+    if inhab_menu.isdigit():
+        if int(inhab_menu) not in range (0, 9):
+            print("Invalid menu option!")
+            continue
+        inhab_menu = int(inhab_menu)
+        if inhab_menu == 1:
+            print("Enter new inhabitant`s data:")
+            print("Enter first name:")
+            f_name = input()
+            print("Enter second name:")
+            s_name = input()
+            inhabitant = Inhabitant(f_name, s_name)
+            am.add_inhabitants(inhabitant)
+        elif inhab_menu == 2:
+            am.provide_inhab_pass()
+        elif inhab_menu == 3:
+            am.take_inhab_pass()
+        elif inhab_menu == 4:
+            am.list_inhabitants()
+        elif inhab_menu == 5:
+            while True:
+                print("Enter inhabitant's id to buy an apartment:")
+                i = input()
+                if len(am.inhabitants) == 0:
+                    print("no inhabitants yet!")
+                    break
+                if i.isdigit() and int(i) <= len(am.inhabitants):
+                    i = int(i) - 1
+                    print("Enter building`s number, available are from 1 to", number_buildings)
+                    n = input()
+                    if n.isdigit() and int(n) <= number_buildings:
+                        n = int(n)
+                        print("How many rooms? 1 or 2?")
+                        rooms = input()
+                        if rooms.isdigit() and 1<= int(rooms) <= 2:
+                            rooms = int(rooms)
+                            if rooms == 1:
+                                print("Enter flat`s, available are from 1 to", apart_type1)
+                                apart_type_1 = input()
+                                if apart_type_1.isdigit() and int(apart_type_1) <= apart_type1:
+                                    apart_type_1 = int(apart_type_1)
+                                    apart_type_2 = 0
+                                    am.inhabitants[i].buy_apartment(n, apart_type_1, apart_type_2, rooms)
+                                else:
+                                    print("Invalid data!")
+                                    continue
+                            if rooms == 2:
+                                print("Enter flat`s, available are from 1 to", apart_type2)
+                                apart_type_2 = input()
+                                if apart_type_2.isdigit() and int(apart_type_2) <= apart_type2:
+                                    apart_type_2 = int(apart_type_2)
+                                    apart_type_1 = 0
+                                    am.inhabitants[i].buy_apartment(n, apart_type_1, apart_type_2, rooms)
+                                else:
+                                    print("Invalid data!")
+                                    continue
+                        else:
+                            print("Invalid data!")
+                            continue
+                    else:
+                        print("Invalid data!")
+                        continue
+                else:
+                    print("Invalid data!")
+                    continue
+                break
+        elif inhab_menu == 6:
+            while True:
+                print("Enter inhabitant's id to sell an apartment:")
+                i = input()
+                if len(am.inhabitants) == 0:
+                    print("no inhabitants yet!")
+                    break
+                if i.isdigit() and int(i) <= len(am.inhabitants):
+                    i = int(i) - 1
+                    print(am.inhabitants[i].address)
+                    building_n = int(am.inhabitants[i].address[0])
+                    rooms = int(am.inhabitants[i].address[4])
+                    print(building_n, rooms)
+                    flat_number = str(am.inhabitants[i].address[4:5])
+                    flat_number.replace(" ", "")
+                    flat_number = int(flat_number)
+                    am.inhabitants[i].address = ""
+                    if rooms == 1:
+                        am.inhabitants[i].sell_apartment(building_n, flat_number, 0, rooms)
+                    if rooms == 2:
+                        am.inhabitants[i].sell_apartment(building_n, 0, flat_number, rooms)
+                    break
+                else:
+                    print("Invalid data!")
+                    continue
+        elif inhab_menu == 7:
+            am.stuff_call()
+        elif inhab_menu == 8:
+            am.return_address()
+        elif manag_menu == 0:
+            break
+    else:
+        print("Invalid menu option!")
+        continue
